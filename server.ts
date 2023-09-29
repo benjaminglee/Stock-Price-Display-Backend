@@ -2,6 +2,7 @@ import express from 'express';
 import WebSocket from 'ws';
 import fs from 'fs';
 import generatePrice from './PriceSimulator';
+import { updateInterval } from './constants';
 
 const app = express();
 const server = app.listen(8080, () => {
@@ -9,10 +10,7 @@ const server = app.listen(8080, () => {
 });
 const wss = new WebSocket.Server({ server });
 const stockData = JSON.parse(fs.readFileSync('./stock_list.json', 'utf-8'));
-
 const updatedStockPrices: { [symbol: string]: number } = {};
-const updateInterval = 100;
-
 const connectedClients: Set<WebSocket> = new Set();
 
 wss.on('connection', (ws) => {
