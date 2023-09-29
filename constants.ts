@@ -1,1 +1,1 @@
-export const updateInterval = 100; //change to limit/increase updating
+export const updateInterval = 500; //change to limit/increase updating
