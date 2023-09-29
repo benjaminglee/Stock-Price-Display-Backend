@@ -9,4 +9,10 @@ const server = app.listen(8080, () => {
 });
 const wss = new WebSocket.Server({ server });
 const stockData = JSON.parse(fs.readFileSync('./stock_list.json', 'utf-8'));
-console.log(stockData)
+
+const updatedStockPrices: { [symbol: string]: number } = {};
+const updateInterval = 100;
+
+setInterval(() => {
+  for(const symbol in )
+}, updateInterval)
