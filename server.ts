@@ -2,38 +2,61 @@ import express from 'express';
 import WebSocket from 'ws';
 import fs from 'fs';
 import generatePrice from './PriceSimulator';
+const cors = require('cors');
 import { updateInterval } from './constants';
+
 
 const app = express();
 const server = app.listen(8080, () => {
   console.log('Server listening on port 8080');
 });
+
+app.use(cors({ origin: 'http://localhost:3000' }));
+
 const wss = new WebSocket.Server({ server });
 const stockData = JSON.parse(fs.readFileSync('./stock_list.json', 'utf-8'));
 const updatedStockPrices: { [symbol: string]: number } = {};
-const connectedClients: Set<WebSocket> = new Set();
+
+app.get('/api/stocks', (req, res) => {
+  res.send(stockData);
+});
+
+// Initialize a Map to store WebSocket connections and selected stocks
+const connectedClients = new Map();
 
 wss.on('connection', (ws) => {
-  connectedClients.add(ws);
   console.log('Client connected');
 
+  ws.onmessage = (event) => {
+    if (typeof event.data === 'string') {
+      const selectedStocks = JSON.parse(event.data);
+      connectedClients.set(ws, selectedStocks); //pair socket with requested stock info
+    }
+  };
+
   ws.on('close', () => {
+    // Remove the WebSocket connection from the Map when disconnected
     connectedClients.delete(ws);
     console.log('Client disconnected');
   });
 });
 
 setInterval(() => {
-  for(const symbol in stockData) {
-    if(stockData.hasOwnProperty(symbol)) {
+  for (const symbol in stockData) {
+    if (stockData.hasOwnProperty(symbol)) {
       updatedStockPrices[symbol] = generatePrice(symbol);
     }
   }
   console.log(updatedStockPrices);
-  //loop through connections and send message to clients
-  //TODO test connectino
-  for (const ws of connectedClients) {
-    const message = JSON.stringify(updatedStockPrices);
+
+  for (const [ws, selectedStocks] of connectedClients) {
+    const filteredData: { [symbol: string]: number } = {};
+    for (const stockSymbol of selectedStocks) {
+      if (stockData.hasOwnProperty(stockSymbol)) {
+        filteredData[stockSymbol] = stockData[stockSymbol];
+      }
+    }
+    const message = JSON.stringify(filteredData);
     ws.send(message);
   }
-}, updateInterval)
+}, updateInterval);
