@@ -42,14 +42,14 @@ setInterval(() => {
             updatedStockPrices[symbol] = (0, PriceSimulator_1.default)(symbol);
         }
     }
-    console.log(updatedStockPrices);
     for (const [ws, selectedStocks] of connectedClients) {
         const filteredData = {};
         for (const stockSymbol of selectedStocks) {
             if (stockData.hasOwnProperty(stockSymbol)) {
-                filteredData[stockSymbol] = stockData[stockSymbol];
+                filteredData[stockSymbol] = updatedStockPrices[stockSymbol];
             }
         }
+        console.log(filteredData, 'filtered');
         const message = JSON.stringify(filteredData);
         ws.send(message);
     }
