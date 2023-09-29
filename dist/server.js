@@ -49,8 +49,8 @@ setInterval(() => {
                 filteredData[stockSymbol] = updatedStockPrices[stockSymbol];
             }
         }
-        console.log(filteredData, 'filtered');
         const message = JSON.stringify(filteredData);
+        console.log(filteredData);
         ws.send(message);
     }
 }, constants_1.updateInterval);

@@ -56,6 +56,7 @@ setInterval(() => {
       }
     }
     const message = JSON.stringify(filteredData);
+    console.log(filteredData);
     ws.send(message);
   }
 }, updateInterval);
