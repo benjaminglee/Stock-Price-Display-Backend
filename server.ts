@@ -47,13 +47,12 @@ setInterval(() => {
       updatedStockPrices[symbol] = generatePrice(symbol);
     }
   }
-  console.log(updatedStockPrices);
 
   for (const [ws, selectedStocks] of connectedClients) {
     const filteredData: { [symbol: string]: number } = {};
     for (const stockSymbol of selectedStocks) {
       if (stockData.hasOwnProperty(stockSymbol)) {
-        filteredData[stockSymbol] = stockData[stockSymbol];
+        filteredData[stockSymbol] = updatedStockPrices[stockSymbol];
       }
     }
     const message = JSON.stringify(filteredData);
