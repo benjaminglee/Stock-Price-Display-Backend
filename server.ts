@@ -10,7 +10,7 @@ const server = app.listen(8080, () => {
   console.log('Server listening on port 8080');
 });
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors());
 
 const wss = new WebSocket.Server({ server });
 const stockData = JSON.parse(fs.readFileSync('./stock_list.json', 'utf-8'));
@@ -48,7 +48,8 @@ wss.on('connection', (ws) => {
   ws.onmessage = (event) => {
     if (typeof event.data === 'string') {
       const selectedStocks = JSON.parse(event.data);
-      connectedClients.set(ws, selectedStocks); //pair socket with requested stock info
+      //pair socket with requested stock info
+      connectedClients.set(ws, selectedStocks);
       const filteredData: { [symbol: string]: number } = {};
       for (const stockSymbol of selectedStocks) {
         if (stockData.hasOwnProperty(stockSymbol)) {
@@ -57,6 +58,7 @@ wss.on('connection', (ws) => {
       }
       const message = JSON.stringify(filteredData);
       console.log(filteredData);
+      //send message immediately to updated FE
       ws.send(message);
     }
   };
