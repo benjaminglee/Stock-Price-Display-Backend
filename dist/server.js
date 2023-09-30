@@ -20,6 +20,20 @@ const updatedStockPrices = {};
 app.get('/api/stocks', (req, res) => {
     res.send(stockData);
 });
+app.get('/api/stocks', (req, res) => {
+    res.send(stockData);
+});
+app.get('/api/search', (req, res) => {
+    const query = req.query.q || '';
+    const results = Object.entries(stockData)
+        .filter(([symbol, price]) => {
+        if (typeof query === 'string') {
+            symbol.toLowerCase().includes(query.toLowerCase());
+        }
+    })
+        .map(([symbol, price]) => ({ symbol, price }));
+    res.json(results);
+});
 // Initialize a Map to store WebSocket connections and selected stocks
 const connectedClients = new Map();
 wss.on('connection', (ws) => {
