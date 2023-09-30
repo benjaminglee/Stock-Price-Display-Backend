@@ -5,7 +5,6 @@ import generatePrice from './PriceSimulator';
 const cors = require('cors');
 import { updateInterval } from './constants';
 
-
 const app = express();
 const server = app.listen(8080, () => {
   console.log('Server listening on port 8080');
@@ -27,15 +26,15 @@ app.get('/api/stocks', (req, res) => {
 
 app.get('/api/search', (req, res) => {
   const query = req.query.q || '';
-  console.log(query)
-  console.log(Object.entries(stockData))
+  console.log(query);
+  console.log(Object.entries(stockData));
   const results = Object.entries(stockData)
-  .filter(([symbol, price]) =>{
-    if (typeof query === 'string') {
-      if(symbol.toLowerCase().includes(query.toLowerCase()))return [symbol, price];
-    }
-  })
-  .map(([symbol, price]) => ({ symbol, price }));
+    .filter(([symbol, price]) => {
+      if (typeof query === 'string') {
+        if (symbol.toLowerCase().includes(query.toLowerCase()) && query !== '') return [symbol, price];
+      }
+    })
+    .map(([symbol, price]) => ({ symbol, price }));
   console.log(results, 'results');
   res.json(results);
 });
@@ -50,6 +49,15 @@ wss.on('connection', (ws) => {
     if (typeof event.data === 'string') {
       const selectedStocks = JSON.parse(event.data);
       connectedClients.set(ws, selectedStocks); //pair socket with requested stock info
+      const filteredData: { [symbol: string]: number } = {};
+      for (const stockSymbol of selectedStocks) {
+        if (stockData.hasOwnProperty(stockSymbol)) {
+          filteredData[stockSymbol] = updatedStockPrices[stockSymbol];
+        }
+      }
+      const message = JSON.stringify(filteredData);
+      console.log(filteredData);
+      ws.send(message);
     }
   };
 

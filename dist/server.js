@@ -30,7 +30,7 @@ app.get('/api/search', (req, res) => {
     const results = Object.entries(stockData)
         .filter(([symbol, price]) => {
         if (typeof query === 'string') {
-            if (symbol.toLowerCase().includes(query.toLowerCase()))
+            if (symbol.toLowerCase().includes(query.toLowerCase()) && query !== '')
                 return [symbol, price];
         }
     })
@@ -46,6 +46,15 @@ wss.on('connection', (ws) => {
         if (typeof event.data === 'string') {
             const selectedStocks = JSON.parse(event.data);
             connectedClients.set(ws, selectedStocks); //pair socket with requested stock info
+            const filteredData = {};
+            for (const stockSymbol of selectedStocks) {
+                if (stockData.hasOwnProperty(stockSymbol)) {
+                    filteredData[stockSymbol] = updatedStockPrices[stockSymbol];
+                }
+            }
+            const message = JSON.stringify(filteredData);
+            console.log(filteredData);
+            ws.send(message);
         }
     };
     ws.on('close', () => {
