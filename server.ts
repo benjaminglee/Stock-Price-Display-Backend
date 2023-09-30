@@ -27,13 +27,16 @@ app.get('/api/stocks', (req, res) => {
 
 app.get('/api/search', (req, res) => {
   const query = req.query.q || '';
+  console.log(query)
+  console.log(Object.entries(stockData))
   const results = Object.entries(stockData)
   .filter(([symbol, price]) =>{
     if (typeof query === 'string') {
-    symbol.toLowerCase().includes(query.toLowerCase())
+      if(symbol.toLowerCase().includes(query.toLowerCase()))return [symbol, price];
     }
   })
   .map(([symbol, price]) => ({ symbol, price }));
+  console.log(results, 'results');
   res.json(results);
 });
 
