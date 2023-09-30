@@ -17,11 +17,9 @@ const stockData = JSON.parse(fs.readFileSync('./stock_list.json', 'utf-8'));
 const updatedStockPrices: { [symbol: string]: number } = {};
 
 app.get('/api/stocks', (req, res) => {
-  res.send(stockData);
-});
-
-app.get('/api/stocks', (req, res) => {
-  res.send(stockData);
+  const convertedData = Object.entries(stockData).map(([symbol, price]) => ({ symbol, price }));
+  console.log(convertedData);
+  res.send(convertedData);
 });
 
 app.get('/api/search', (req, res) => {
@@ -46,6 +44,7 @@ wss.on('connection', (ws) => {
   console.log('Client connected');
 
   ws.onmessage = (event) => {
+    console.log(event);
     if (typeof event.data === 'string') {
       const selectedStocks = JSON.parse(event.data);
       //pair socket with requested stock info

@@ -18,10 +18,9 @@ const wss = new ws_1.default.Server({ server });
 const stockData = JSON.parse(fs_1.default.readFileSync('./stock_list.json', 'utf-8'));
 const updatedStockPrices = {};
 app.get('/api/stocks', (req, res) => {
-    res.send(stockData);
-});
-app.get('/api/stocks', (req, res) => {
-    res.send(stockData);
+    const convertedData = Object.entries(stockData).map(([symbol, price]) => ({ symbol, price }));
+    console.log(convertedData);
+    res.send(convertedData);
 });
 app.get('/api/search', (req, res) => {
     const query = req.query.q || '';
@@ -43,20 +42,11 @@ const connectedClients = new Map();
 wss.on('connection', (ws) => {
     console.log('Client connected');
     ws.onmessage = (event) => {
+        console.log(event);
         if (typeof event.data === 'string') {
             const selectedStocks = JSON.parse(event.data);
             //pair socket with requested stock info
             connectedClients.set(ws, selectedStocks);
-            //   const filteredData: { [symbol: string]: number } = {};
-            //   for (const stockSymbol of selectedStocks) {
-            //     if (stockData.hasOwnProperty(stockSymbol)) {
-            //       filteredData[stockSymbol] = updatedStockPrices[stockSymbol];
-            //     }
-            //   }
-            //   const message = JSON.stringify(filteredData);
-            //   console.log(filteredData);
-            //   //send message immediately to updated FE
-            //   ws.send(message);
         }
     };
     ws.on('close', () => {
