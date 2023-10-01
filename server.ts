@@ -68,6 +68,7 @@ setInterval(() => {
 
   for (const [ws, selectedStocks] of connectedClients) {
     const filteredData: { [symbol: string]: number } = {};
+    if (selectedStocks.length === 0) continue;
     for (const stockSymbol of selectedStocks) {
       if (stockData.hasOwnProperty(stockSymbol)) {
         filteredData[stockSymbol] = updatedStockPrices[stockSymbol];
